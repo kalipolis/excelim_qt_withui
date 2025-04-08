@@ -15,6 +15,18 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+
+    void on_radioButton_surgery_toggled(bool checked);
+
+    void on_radioButton_patient_toggled(bool checked);
+
+    void on_radioButton_logout_toggled(bool checked);
+
+    void on_pushButton_infoSaving_clicked();
+
+    void on_pushButton_imageSaving_clicked();
+
 private:
     Ui::MainWindow *ui;
 };
