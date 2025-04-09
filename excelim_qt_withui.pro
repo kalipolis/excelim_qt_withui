@@ -18,18 +18,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    point.cpp \
-    route.cpp
+    point.cpp
 
 HEADERS += \
     mainwindow.h \
-    point.h \
-    route.h
+    point.h
 
 FORMS += \
     mainwindow.ui \
-    point.ui \
-    route.ui
+    point.ui
 
 TRANSLATIONS += \
     excelim_qt_withui_zh_CN.ts
