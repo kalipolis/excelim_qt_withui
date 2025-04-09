@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1099</width>
-    <height>560</height>
+    <width>941</width>
+    <height>479</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1441,7 +1441,7 @@ p, li { white-space: pre-wrap; }
         <item>
          <widget class="QStackedWidget" name="stackedWidget_4">
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <widget class="QWidget" name="page_8">
            <layout class="QHBoxLayout" name="horizontalLayout_33">
@@ -1578,7 +1578,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QStackedWidget" name="stackedWidget_7">
               <property name="currentIndex">
-               <number>2</number>
+               <number>0</number>
               </property>
               <widget class="QWidget" name="page_12">
                <layout class="QHBoxLayout" name="horizontalLayout_34">
@@ -2542,6 +2542,7 @@ border: 0.5px solid #000000</string>
           <widget class="point" name="page_9">
            <layout class="QHBoxLayout" name="horizontalLayout_51"/>
           </widget>
+          <widget class="rt_3" name="page_16"/>
          </widget>
         </item>
        </layout>
@@ -2986,7 +2987,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1099</width>
+     <width>941</width>
      <height>26</height>
     </rect>
    </property>
@@ -2998,6 +2999,12 @@ p, li { white-space: pre-wrap; }
    <class>point</class>
    <extends>QWidget</extends>
    <header>point.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>rt_3</class>
+   <extends>QWidget</extends>
+   <header>rt_3.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
