@@ -16,6 +16,7 @@ public:
     ~MainWindow();
 
 private slots:
+    void onColorButtonClicked();
 
     void on_radioButton_surgery_toggled(bool checked);
 
