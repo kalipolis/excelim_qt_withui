@@ -3,6 +3,10 @@
 #define vtkRenderingCore_AUTOINIT 2(vtkRenderingOpenGL2, vtkInteractionStyle)
 
 #include <QMainWindow>
+#include <vtkSmartPointer.h>
+#include <vtkDICOMImageReader.h>
+#include <vtkImageViewer2.h>
+#include <QVTKOpenGLNativeWidget.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

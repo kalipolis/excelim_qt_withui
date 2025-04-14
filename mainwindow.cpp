@@ -1,7 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <vtkSmartPointer.h>
+#include <vtkDICOMImageReader.h>
+#include <vtkImageViewer2.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <QVTKOpenGLNativeWidget.h>
 #include <QColorDialog>
 #include <QDebug>
+#include <QDir>
 
 #include "vtkAutoInit.h"
 VTK_MODULE_INIT(vtkRenderingOpenGL2); // VTK was built with vtkRenderingOpenGL2
@@ -15,9 +22,43 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->colorButton, &QPushButton::clicked, this, &MainWindow::onColorButtonClicked);
     
-    // 连接lastpage和nextpage按钮
-    // connect(ui->lastpage, &QPushButton::clicked, this, &MainWindow::on_lastpage_clicked, Qt::UniqueConnection);
-    // connect(ui->nextpage, &QPushButton::clicked, this, &MainWindow::on_nextpage_clicked, Qt::UniqueConnection);
+    // 检查路径是否存在
+    QDir dir("../../images/basic_sequence/01");
+    if (!dir.exists()) {
+        qDebug() << "Directory does not exist:" << dir.absolutePath();
+        return;
+    } else {
+        qDebug() << "Directory exists:" << dir.absolutePath();
+    }
+
+    // 创建DICOM图像读取器
+    vtkSmartPointer<vtkDICOMImageReader> reader = vtkSmartPointer<vtkDICOMImageReader>::New();
+    reader->SetDirectoryName("../../images/basic_sequence/01"); // 设置DICOM图像所在的目录
+    reader->SetDataExtent(0, 255, 0, 255, 0, 3); // 设置读取的图像范围，0~3张
+    reader->SetDataSpacing(1.0, 1.0, 1.0); // 设置图像间距
+    reader->SetDataOrigin(0.0, 0.0, 0.0); // 设置图像原点
+    reader->Update();
+
+    // 检查是否成功读取
+    if (reader->GetErrorCode() != 0) {
+        qDebug() << "Failed to read DICOM images. Error code:" << reader->GetErrorCode();
+        return;
+    }
+
+    // 创建图像查看器
+    vtkSmartPointer<vtkImageViewer2> imageViewer = vtkSmartPointer<vtkImageViewer2>::New();
+    imageViewer->SetInputConnection(reader->GetOutputPort());
+
+    // 设置渲染窗口
+    vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
+    imageViewer->SetRenderWindow(renderWindow);
+
+    // 将渲染窗口设置到QVTKOpenGLNativeWidget中
+    ui->qvtkWidget->SetRenderWindow(renderWindow);
+
+    // 设置初始显示的切片
+    imageViewer->SetSlice(0);
+    imageViewer->Render();
 }
 
 MainWindow::~MainWindow()
@@ -36,8 +77,6 @@ void MainWindow::onColorButtonClicked()
     }
     delete cdia;
 }
-
-
 
 void MainWindow::on_lastpage_clicked()
 {
