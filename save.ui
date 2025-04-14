@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(31, 45, 60);</string>
+   <string notr="true"/>
   </property>
   <widget class="QStackedWidget" name="stackedWidget_6">
    <property name="geometry">
@@ -33,7 +33,7 @@
      <item>
       <widget class="QWidget" name="widget_3" native="true">
        <property name="styleSheet">
-        <string notr="true">background-color: rgb(69, 96, 119);</string>
+        <string notr="true"/>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,1">
         <item>

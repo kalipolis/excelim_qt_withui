@@ -1,10 +1,15 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QColorDialog>
+#include <QFile>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    QFile file(":/qss/myQSS.qss");
+    file.open(QIODevice::ReadOnly);
+    setStyleSheet(file.readAll());
     ui->setupUi(this);
     connect(ui->colorButton, &QPushButton::clicked, this, &MainWindow::onColorButtonClicked);
 }
