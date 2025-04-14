@@ -1,5 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#define vtkRenderingCore_AUTOINIT 2(vtkRenderingOpenGL2, vtkInteractionStyle)
 
 #include <QMainWindow>
 
@@ -18,15 +19,8 @@ public:
 private slots:
     void onColorButtonClicked();
 
-    void on_radioButton_surgery_toggled(bool checked);
-
-    void on_radioButton_patient_toggled(bool checked);
-
-    void on_radioButton_logout_toggled(bool checked);
-
-    void on_pushButton_infoSaving_clicked();
-
-    void on_pushButton_imageSaving_clicked();
+    void on_lastpage_clicked();
+    void on_nextpage_clicked();
 
 private:
     Ui::MainWindow *ui;
