@@ -47,5 +47,3 @@ add_custom_command(TARGET MyVTKQtApp POST_BUILD
         ${CMAKE_CURRENT_SOURCE_DIR}/qss/myQSS.qss
         $<TARGET_FILE_DIR:MyVTKQtApp>/qss/
 )
-
-vtk_module_config(VTK ${VTK_MODULES_REQUESTED})

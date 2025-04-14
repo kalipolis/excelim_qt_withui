@@ -49,12 +49,21 @@ MainWindow::MainWindow(QWidget *parent)
     vtkSmartPointer<vtkImageViewer2> imageViewer = vtkSmartPointer<vtkImageViewer2>::New();
     imageViewer->SetInputConnection(reader->GetOutputPort());
 
+/*
     // 设置渲染窗口
     vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
     imageViewer->SetRenderWindow(renderWindow);
 
     // 将渲染窗口设置到QVTKOpenGLNativeWidget中
-    ui->qvtkWidget->SetRenderWindow(renderWindow);
+    ui->openGLWidget->SetRenderWindow(renderWindow);
+*/
+
+
+    // 将渲染窗口设置到 QVTKOpenGLNativeWidget 控件上
+    imageViewer->SetRenderWindow(ui->openGLWidget->renderWindow());
+
+    // 设置交互器（可选）
+    imageViewer->SetupInteractor(ui->openGLWidget->interactor());
 
     // 设置初始显示的切片
     imageViewer->SetSlice(0);
