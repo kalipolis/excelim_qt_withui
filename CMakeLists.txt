@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.10)
 
 project(MyVTKQtProject LANGUAGES CXX)
 
+
+set(USER_CONFIG_FILE "${CMAKE_SOURCE_DIR}/config/UserConfig.cmake")
+if(EXISTS ${USER_CONFIG_FILE})
+    message(STATUS "Including user config: ${USER_CONFIG_FILE}")
+    include(${USER_CONFIG_FILE})
+endif()
+
 find_package(VTK REQUIRED)
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 
@@ -34,7 +41,9 @@ set(FORMS
     save.ui
 )
 
-add_executable(MyVTKQtApp ${SOURCES} ${HEADERS} ${FORMS})
+file(GLOB_RECURSE QSS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/qss/*")
+
+add_executable(MyVTKQtApp ${SOURCES} ${HEADERS} ${FORMS} ${QSS_FILES})
 
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
