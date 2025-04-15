@@ -35,6 +35,16 @@ set(FORMS
 )
 
 add_executable(MyVTKQtApp ${SOURCES} ${HEADERS} ${FORMS})
+
+
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Generator: ${CMAKE_GENERATOR}")
+message(STATUS "CXX compiler: ${CMAKE_CXX_COMPILER}")
+# 打印版本信息
+message(STATUS "Compiler version: ${CMAKE_CXX_COMPILER_VERSION}")
+message(STATUS "VTK version: ${VTK_VERSION}")
+message(STATUS "Qt5 version: ${Qt5Widgets_VERSION}")
+
 target_link_libraries(MyVTKQtApp ${VTK_LIBRARIES} Qt5::Widgets)
 
 add_custom_command(TARGET MyVTKQtApp POST_BUILD

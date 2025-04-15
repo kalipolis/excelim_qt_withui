@@ -9,7 +9,7 @@
 1. 确保已安装Visual Studio 2022，并包含C++开发工具
 2. 安装CMake 3.26.0，并将其添加到系统PATH
 3. 安装Qt 5.14.2，配置好环境变量
-4. 安装VTK 8.2.0，配置好环境变量
+4. 安装VTK 9.2.0，配置好环境变量
 
 ### 项目配置
 1. 打开命令行，进入项目目录
@@ -19,11 +19,16 @@ mkdir build
 cd build
 ```
 3. 使用CMake生成项目：
+Debug:
 ```bash
 cmake ..
 cmake --build .
 ```
-
+Release:
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . --config Release
+```
 ### 运行程序
 1. 编译完成后，在build/Debug目录下会生成MyVTKQtApp.exe
 2. 双击MyVTKQtApp.exe即可运行程序
