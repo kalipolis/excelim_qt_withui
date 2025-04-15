@@ -1,10 +1,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <vtkSmartPointer.h>
-#include <vtkDICOMImageReader.h>
-#include <vtkImageViewer2.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
+#include <vtkRenderer.h>       
+#include <vtkImageViewer2.h>     
+#include <vtkRenderWindow.h>      // 明确包含渲染窗口头文件
+#include <vtkRenderWindowInteractor.h> // 明确包含交互器头文件
+#include <vtkDICOMImageReader.h>  // DICOM读取器头文件
 #include <QVTKOpenGLNativeWidget.h>
 #include <QColorDialog>
 #include <QDebug>
@@ -18,13 +18,32 @@ VTK_MODULE_INIT(vtkInteractionStyle);
 VTK_MODULE_INIT(vtkRenderingFreeType); // 增加字体渲染模块
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
-    connect(ui->colorButton, &QPushButton::clicked, this, &MainWindow::onColorButtonClicked);
+    //初始化VTK Widget
+    auto vtkWidget = ui->QVTKOpenGLNativeWidget1; // 确保UI中控件名称正确
+    vtkNew<vtkRenderer> renderer;
+    vtkWidget->renderWindow()->AddRenderer(renderer);
 
+    //读取DICOM序列
+    vtkNew<vtkDICOMImageReader> reader;
+    reader->SetDirectoryName("../../images/basic_sequence/01"); // 直接指定文件夹
+    reader->Update();
+
+    // // 配置图像显示
+    vtkNew<vtkImageViewer2> imageViewer;
+    imageViewer->SetInputConnection(reader->GetOutputPort());
+    imageViewer->SetRenderWindow(vtkWidget->renderWindow());
+    imageViewer->SetColorWindow(2000); // 调整窗宽
+    imageViewer->SetColorLevel(500);    // 调整窗位
+
+
+    // // 渲染
+    imageViewer->GetRenderer()->ResetCamera();
+    vtkWidget->renderWindow()->Render();
+}
     // // 验证DICOM路径
     // QDir dir("../../images/basic_sequence/01");
     // if (!dir.exists()) {
@@ -61,7 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
     // imageViewer->SetSlice(0);
     // imageViewer->GetRenderer()->ResetCamera();
     // renderWindow->Render();
-}
+
 
 MainWindow::~MainWindow()
 {
