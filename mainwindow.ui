@@ -762,7 +762,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                        <number>0</number>
                       </property>
                       <item>
-                       <widget class="QPushButton" name="pushButton_15">
+                       <widget class="QPushButton" name="image_change_1">
                         <property name="text">
                          <string>序列前后交换</string>
                         </property>
@@ -787,7 +787,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                        <number>0</number>
                       </property>
                       <item>
-                       <widget class="QPushButton" name="pushButton_13">
+                       <widget class="QPushButton" name="image_change_2">
                         <property name="text">
                          <string>图像左右交换</string>
                         </property>
@@ -812,7 +812,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                        <number>0</number>
                       </property>
                       <item>
-                       <widget class="QPushButton" name="pushButton_14">
+                       <widget class="QPushButton" name="image_change_3">
                         <property name="text">
                          <string>图像上下交换</string>
                         </property>

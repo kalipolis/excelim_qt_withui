@@ -32,11 +32,18 @@ private slots:
     void MainWindow::on3v3Clicked();
     void MainWindow::on4v4Clicked();
 
+    void onImageChange1Clicked();  // 序列前后交换
+    void onImageChange2Clicked();  // 图像左右翻转
+    void onImageChange3Clicked();  // 图像上下翻转
+
 private:
     void updateImageViewer();
 
     Ui::MainWindow *ui;
     QString currentImagePath;
+    bool isSequenceSwapped;  // 是否交换序列
+    bool isHorizontalFlip;  // 是否水平翻转
+    bool isVerticalFlip;    // 是否垂直翻转
     int startSlice;
     int endSlice;
     int displayMode;
