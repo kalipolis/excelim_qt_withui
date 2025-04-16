@@ -3,6 +3,7 @@
 #include <vtkRendererCollection.h> 
 #include <vtkRenderer.h>       
 #include <vtkImageViewer2.h>     
+#include <vtkImageData.h>
 #include <vtkRenderWindow.h>      // 明确包含渲染窗口头文件
 #include <vtkRenderWindowInteractor.h> // 明确包含交互器头文件
 #include <vtkDICOMImageReader.h>  // DICOM读取器头文件
@@ -12,6 +13,7 @@
 #include <QDir>
 #include <QMessageBox> 
 #include <vtkGenericOpenGLRenderWindow.h>
+#include <algorithm>
 
 #include "vtkAutoInit.h"
 // 确保初始化必要的VTK模块
@@ -178,25 +180,26 @@ void MainWindow::onReadIn1Clicked()
     vtkNew<vtkDICOMImageReader> reader;
     reader->SetDirectoryName(currentImagePath.toStdString().c_str());
     reader->Update();
+    updateImageViewer();
 
     // 初始化VTK Widget
-    auto vtkWidget = ui->QVTKOpenGLNativeWidget1;
-    vtkNew<vtkRenderer> renderer;
-    vtkWidget->renderWindow()->AddRenderer(renderer);
+    // auto vtkWidget = ui->QVTKOpenGLNativeWidget1;
+    // vtkNew<vtkRenderer> renderer;
+    // vtkWidget->renderWindow()->AddRenderer(renderer);
 
-    // 配置图像显示
-    vtkNew<vtkImageViewer2> imageViewer;
-    imageViewer->SetInputConnection(reader->GetOutputPort());
-    imageViewer->SetRenderWindow(vtkWidget->renderWindow());
+    // // 配置图像显示
+    // vtkNew<vtkImageViewer2> imageViewer;
+    // imageViewer->SetInputConnection(reader->GetOutputPort());
+    // imageViewer->SetRenderWindow(vtkWidget->renderWindow());
 
-    // 计算要显示的切片
-    int slice = (startSlice + endSlice) / 2;
-    imageViewer->SetSlice(slice); // 显示中间切片
+    // // 计算要显示的切片
+    // int slice = (startSlice + endSlice) / 2;
+    // imageViewer->SetSlice(slice); // 显示中间切片
 
-    vtkWidget->renderWindow()->GetInteractor()->SetInteractorStyle(nullptr);
+    // vtkWidget->renderWindow()->GetInteractor()->SetInteractorStyle(nullptr);
 
-    // 渲染
-    imageViewer->Render();
+    // // 渲染
+    // imageViewer->Render();
 
     // 设置QVTKOpenGLNativeWidget1为可见
     //ui->QVTKOpenGLNativeWidget1->setVisible(true);
@@ -231,80 +234,81 @@ void MainWindow::on4v4Clicked()
 
 void MainWindow::updateImageViewer()
 {
-    int start = ui->lineEdit->text().toInt();
-    int end = ui->lineEdit_2->text().toInt();
-    int totalSlices = end - start + 1;
-
-    // 检查路径是否存在
     QDir imageDir(currentImagePath);
     if (!imageDir.exists()) {
-        qDebug() << "Directory does not exist: " << currentImagePath;
+        qDebug() << "Directory does not exist:" << currentImagePath;
         return;
     }
 
-    // 清除之前的渲染器
     auto vtkWidget = ui->QVTKOpenGLNativeWidget1;
-    vtkWidget->renderWindow()->GetRenderers()->RemoveAllItems();
+    auto renderWindow = vtkWidget->renderWindow();
+    
+    // 清除旧内容
+    renderWindow->GetRenderers()->RemoveAllItems();
 
-    // 重新设置reader的路径
+    // 配置DICOM读取器
     reader->SetDirectoryName(currentImagePath.toStdString().c_str());
     reader->Update();
 
-    // 根据显示模式切分窗口
+    // 计算布局
     int rows = 1, cols = 1;
     switch (displayMode) {
-    case 1:
-        rows = 1; cols = 1;
-        break;
-    case 2:
-        rows = 2; cols = 2;
-        break;
-    case 3:
-        rows = 3; cols = 3;
-        break;
-    case 4:
-        rows = 4; cols = 4;
-        break;
+    case 1: rows = cols = 1; break;
+    case 2: rows = cols = 2; break;
+    case 3: rows = cols = 3; break;
+    case 4: rows = cols = 4; break;
     }
 
-    // 计算每个子窗口的大小
-    double viewportWidth = 1.0 / cols;
-    double viewportHeight = 1.0 / rows;
+    const int totalViews = rows * cols;
+    const double vpWidth = 1.0 / cols;
+    const double vpHeight = 1.0 / rows;
 
-    // 显示图像
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            int index = i * cols + j;
-            if (index >= totalSlices) break;
+            const int index = i * cols + j;
+            if (index >= totalViews) break;
 
-            // 计算当前切片的索引
-            int slice = start + index;
+            // 计算切片位置（均匀分布）
+            int slice = startSlice + index;
+            slice = std::clamp(slice, startSlice, endSlice);
 
-            // 创建新的渲染器
+            // 创建视图组件
             vtkNew<vtkRenderer> renderer;
-            vtkWidget->renderWindow()->AddRenderer(renderer);
-
-            // 设置视口
+            vtkNew<vtkImageViewer2> imageViewer;
+            
+            // 配置视口，消除边框
             double viewport[4] = {
-                j * viewportWidth,
-                1.0 - (i + 1) * viewportHeight,
-                (j + 1) * viewportWidth,
-                1.0 - i * viewportHeight
+                j * vpWidth,
+                1.0 - (i + 1) * vpHeight,
+                (j + 1) * vpWidth,
+                1.0 - i * vpHeight
             };
             renderer->SetViewport(viewport);
-
-            // 配置图像显示
-            vtkNew<vtkImageViewer2> imageViewer;
+            
+            // 关联视图组件
             imageViewer->SetInputConnection(reader->GetOutputPort());
-            imageViewer->SetRenderWindow(vtkWidget->renderWindow());
-            imageViewer->SetSlice(slice);
+            imageViewer->SetRenderWindow(renderWindow);
             imageViewer->SetRenderer(renderer);
-            imageViewer->Render();
+            
+            // 设置切片
+            imageViewer->SetSlice(slice);
+            
+            // 调整窗口/级别
+            imageViewer->SetColorWindow(2000);
+            imageViewer->SetColorLevel(500);
+            
+            // 启用图像自适应
+            imageViewer->SetSize(renderWindow->GetSize());
+            imageViewer->GetRenderer()->ResetCamera();
+            
+            // 添加到渲染窗口
+            renderWindow->AddRenderer(renderer);
         }
     }
 
-    // 渲染
-    vtkWidget->renderWindow()->Render();
+    // 禁用交互
+    renderWindow->GetInteractor()->SetInteractorStyle(nullptr);
+    
+    // 强制刷新
+    renderWindow->Render();
 }
-
-
