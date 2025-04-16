@@ -41,6 +41,7 @@ private:
 
     Ui::MainWindow *ui;
     QString currentImagePath;
+    bool isSequenceSwapped;  // 是否交换序列
     bool isHorizontalFlip;  // 是否水平翻转
     bool isVerticalFlip;    // 是否垂直翻转
     int startSlice;

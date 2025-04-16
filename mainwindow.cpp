@@ -272,7 +272,16 @@ void MainWindow::updateImageViewer()
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            const int index = i * cols + j;
+            int index;
+
+            if(isSequenceSwapped){
+                index = totalViews-1-(i * cols + j);
+
+            }
+            else{
+                index = i * cols + j;
+            }
+            
             if (index >= totalViews) break;
 
             // 计算切片位置（均匀分布）
@@ -359,10 +368,7 @@ void MainWindow::updateImageViewer()
 
 void MainWindow::onImageChange1Clicked()
 {
-    // 序列前后交换
-    int temp = startSlice;
-    startSlice = endSlice;
-    endSlice = temp;
+    isSequenceSwapped = !isSequenceSwapped;
     updateImageViewer();
 }
 
