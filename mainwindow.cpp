@@ -1,7 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <vtkRendererCollection.h> 
-#include <vtkRenderer.h>       
+#include <vtkRenderer.h>   
+#include <vtkCamera.h>       
 #include <vtkImageViewer2.h>     
 #include <vtkImageData.h>
 #include <vtkRenderWindow.h>      // 明确包含渲染窗口头文件
@@ -297,12 +298,34 @@ void MainWindow::updateImageViewer()
             imageViewer->SetColorWindow(2000);
             imageViewer->SetColorLevel(500);
             
-            // 启用图像自适应
-            imageViewer->SetSize(renderWindow->GetSize());
-            imageViewer->GetRenderer()->ResetCamera();
+            
+            // 获取图像数据
+            vtkImageData* imageData = reader->GetOutput();
+            int extent[6];
+            imageData->GetExtent(extent);
+            double origin[3];
+            imageData->GetOrigin(origin);
+            double spacing[3];
+            imageData->GetSpacing(spacing);
+
+            // 设置相机
+            vtkCamera* camera = renderer->GetActiveCamera();
+            camera->ParallelProjectionOn();  // 启用平行投影
+
+            // 计算图像中心点
+            float xc = origin[0] + 0.5 * (extent[0] + extent[1]) * spacing[0];
+            float yc = origin[1] + 0.5 * (extent[2] + extent[3]) * spacing[1];
+            float yd = (extent[3] - extent[2] + 1) * spacing[1];
+
+            // 设置相机参数
+            float d = camera->GetDistance();
+            camera->SetParallelScale(0.5f * static_cast<float>(yd));  // 设置缩放比例
+            camera->SetFocalPoint(xc, yc, 0.0);  // 设置焦点
+            camera->SetPosition(xc, yc, +d);  // 设置相机位置
             
             // 添加到渲染窗口
             renderWindow->AddRenderer(renderer);
+
         }
     }
 
