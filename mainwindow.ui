@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1008</width>
-    <height>839</height>
+    <width>1003</width>
+    <height>823</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -670,17 +670,41 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_12">
-                  <property name="maximumSize">
+                 <layout class="QVBoxLayout" name="verticalLayout_45">
+                  <item>
+                   <widget class="QPushButton" name="exit_to_choose_1">
+                    <property name="text">
+                     <string>返回选择序列</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="pushButton_12">
+                    <property name="maximumSize">
+                     <size>
+                      <width>100</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>确认读入</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer_6">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
                    <size>
-                    <width>100</width>
-                    <height>16777215</height>
+                    <width>40</width>
+                    <height>20</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string>确认读入</string>
-                  </property>
-                 </widget>
+                 </spacer>
                 </item>
                </layout>
               </widget>
@@ -744,7 +768,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QStackedWidget" name="stackedWidget_10">
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <widget class="QWidget" name="stackedWidget_9Page1_2">
                <layout class="QHBoxLayout" name="horizontalLayout_14">
@@ -1093,17 +1117,37 @@ p, li { white-space: pre-wrap; }
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="pushButton_24">
-                  <property name="maximumSize">
+                 <layout class="QVBoxLayout" name="verticalLayout_44">
+                  <item>
+                   <widget class="QPushButton" name="confirm_reading">
+                    <property name="maximumSize">
+                     <size>
+                      <width>100</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="text">
+                     <string>确认读入</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType">
+                   <enum>QSizePolicy::Expanding</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
                    <size>
-                    <width>100</width>
-                    <height>16777215</height>
+                    <width>0</width>
+                    <height>0</height>
                    </size>
                   </property>
-                  <property name="text">
-                   <string>确认读入</string>
-                  </property>
-                 </widget>
+                 </spacer>
                 </item>
                </layout>
               </widget>
@@ -2981,7 +3025,20 @@ p, li { white-space: pre-wrap; }
         <height>400</height>
        </size>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_54"/>
+      <layout class="QHBoxLayout" name="horizontalLayout_54">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+      </layout>
      </widget>
     </item>
    </layout>
@@ -2991,7 +3048,7 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1008</width>
+     <width>1003</width>
      <height>26</height>
     </rect>
    </property>

@@ -31,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButton_2v2, &QPushButton::clicked, this, &MainWindow::on2v2Clicked);
     connect(ui->pushButton_3v3, &QPushButton::clicked, this, &MainWindow::on3v3Clicked);
     connect(ui->pushButton_4v4, &QPushButton::clicked, this, &MainWindow::on4v4Clicked);
+    connect(ui->exit_to_choose_1, &QPushButton::clicked, this, [this]() {
+        ui->stacked_widget_series->setCurrentIndex(0);
+    });
 
 
     // 添加三个文件夹（01, 02, 03）
@@ -52,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 连接read_in_1按钮的点击信号到槽函数
     connect(ui->read_in_1, &QPushButton::clicked, this, &MainWindow::onReadIn1Clicked);
     // 初始化时隐藏QVTKOpenGLNativeWidget1
-    ui->QVTKOpenGLNativeWidget1->setVisible(false);
+    //ui->QVTKOpenGLNativeWidget1->setVisible(false);
     //初始化VTK Widget
     auto vtkWidget = ui->QVTKOpenGLNativeWidget1; // 确保UI中控件名称正确
     vtkNew<vtkRenderer> renderer;
@@ -67,8 +70,6 @@ MainWindow::MainWindow(QWidget *parent)
     vtkNew<vtkImageViewer2> imageViewer;
     imageViewer->SetInputConnection(reader->GetOutputPort());
     imageViewer->SetRenderWindow(vtkWidget->renderWindow());
-    imageViewer->SetColorWindow(2000); // 调整窗宽
-    imageViewer->SetColorLevel(500);    // 调整窗位
 
 
     // 设置初始切片（如果是多层DICOM）
@@ -187,8 +188,6 @@ void MainWindow::onReadIn1Clicked()
     vtkNew<vtkImageViewer2> imageViewer;
     imageViewer->SetInputConnection(reader->GetOutputPort());
     imageViewer->SetRenderWindow(vtkWidget->renderWindow());
-    imageViewer->SetColorWindow(2000);
-    imageViewer->SetColorLevel(500);    // 调整窗位
 
     // 计算要显示的切片
     int slice = (startSlice + endSlice) / 2;
@@ -200,10 +199,10 @@ void MainWindow::onReadIn1Clicked()
     imageViewer->Render();
 
     // 设置QVTKOpenGLNativeWidget1为可见
-    ui->QVTKOpenGLNativeWidget1->setVisible(true);
+    //ui->QVTKOpenGLNativeWidget1->setVisible(true);
 
     // 切换到stackedWidget_series的第二页
-    //ui->stacked_widget_series->setCurrentIndex(1);
+    ui->stacked_widget_series->setCurrentIndex(1);
 }
 
 void MainWindow::on1v1Clicked()
@@ -298,8 +297,6 @@ void MainWindow::updateImageViewer()
             vtkNew<vtkImageViewer2> imageViewer;
             imageViewer->SetInputConnection(reader->GetOutputPort());
             imageViewer->SetRenderWindow(vtkWidget->renderWindow());
-            imageViewer->SetColorWindow(2000);
-            imageViewer->SetColorLevel(500);
             imageViewer->SetSlice(slice);
             imageViewer->SetRenderer(renderer);
             imageViewer->Render();
