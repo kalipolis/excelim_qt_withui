@@ -17,6 +17,12 @@
    <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_10">
+   <property name="topMargin">
+    <number>2</number>
+   </property>
+   <property name="bottomMargin">
+    <number>2</number>
+   </property>
    <item>
     <widget class="QStackedWidget" name="stackedWidget_6">
      <property name="currentIndex">
@@ -24,8 +30,26 @@
      </property>
      <widget class="QWidget" name="page_surgery">
       <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,10">
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
        <item>
         <widget class="QWidget" name="widget_3" native="true">
+         <property name="maximumSize">
+          <size>
+           <width>300</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
@@ -83,6 +107,18 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 <layout class="QVBoxLayout" name="verticalLayout_3">
                  <item>
                   <widget class="QPushButton" name="pushButton_imageSaving">
+                   <property name="minimumSize">
+                    <size>
+                     <width>150</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>150</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">alternate-background-color: rgb(69, 96, 119);</string>
                    </property>
@@ -93,6 +129,18 @@ li.checked::marker { content: &quot;\2612&quot;; }
                  </item>
                  <item>
                   <widget class="QPushButton" name="pushButton_infoSaving">
+                   <property name="minimumSize">
+                    <size>
+                     <width>150</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>150</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>保存信息</string>
                    </property>
@@ -114,7 +162,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                  <item>
                   <spacer name="horizontalSpacer_2">
                    <property name="orientation">
-                    <enum>Qt::Orientation::Horizontal</enum>
+                    <enum>Qt::Horizontal</enum>
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
@@ -168,7 +216,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                  <item>
                   <spacer name="horizontalSpacer_3">
                    <property name="orientation">
-                    <enum>Qt::Orientation::Horizontal</enum>
+                    <enum>Qt::Horizontal</enum>
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
@@ -191,7 +239,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
               <item>
                <spacer name="verticalSpacer">
                 <property name="orientation">
-                 <enum>Qt::Orientation::Vertical</enum>
+                 <enum>Qt::Vertical</enum>
                 </property>
                 <property name="sizeHint" stdset="0">
                  <size>
@@ -212,6 +260,18 @@ li.checked::marker { content: &quot;\2612&quot;; }
      </widget>
      <widget class="QWidget" name="page_patient">
       <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,4">
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
        <item>
         <widget class="QWidget" name="widget_7" native="true">
          <property name="styleSheet">
@@ -405,6 +465,18 @@ li.checked::marker { content: &quot;\2612&quot;; }
      </widget>
      <widget class="QWidget" name="page_logout">
       <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="1,4">
+       <property name="leftMargin">
+        <number>2</number>
+       </property>
+       <property name="topMargin">
+        <number>2</number>
+       </property>
+       <property name="rightMargin">
+        <number>2</number>
+       </property>
+       <property name="bottomMargin">
+        <number>2</number>
+       </property>
        <item>
         <widget class="QWidget" name="widget_9" native="true">
          <property name="styleSheet">

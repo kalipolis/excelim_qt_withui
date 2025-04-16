@@ -27,7 +27,7 @@ QPushButton{
 	border-top-color: transparent;
 	border-right-color: transparent;
 	border-left-color: transparent;
-	border-bottom-color: transparent;
+	border-bottom-color: #37efba;
 	border-width: 1px;
 	border-style: solid;
 	color: #a9b7c6;
