@@ -3,7 +3,9 @@
 #include <vtkRendererCollection.h> 
 #include <vtkRenderer.h>   
 #include <vtkCamera.h>       
-#include <vtkImageViewer2.h>     
+#include <vtkImageActor.h>
+#include <vtkImageViewer2.h>  
+#include <vtkTransform.h>   
 #include <vtkImageData.h>
 #include <vtkRenderWindow.h>      // 明确包含渲染窗口头文件
 #include <vtkRenderWindowInteractor.h> // 明确包含交互器头文件
@@ -28,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     displayMode = 1; // 默认显示模式为1*1
     reader = vtkSmartPointer<vtkDICOMImageReader>::New(); // 初始化reader
+    isHorizontalFlip = false; // 默认不水平翻转
+    isVerticalFlip = false;   // 默认不垂直翻转
     ui->base_series->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->stacked_widget_series->setCurrentIndex(0);
     connect(ui->pushButton_1v1, &QPushButton::clicked, this, &MainWindow::on1v1Clicked);
@@ -37,7 +41,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->exit_to_choose_1, &QPushButton::clicked, this, [this]() {
         ui->stacked_widget_series->setCurrentIndex(0);
     });
-
+    connect(ui->image_change_1, &QPushButton::clicked, this, &MainWindow::onImageChange1Clicked);
+    connect(ui->image_change_2, &QPushButton::clicked, this, &MainWindow::onImageChange2Clicked);
+    connect(ui->image_change_3, &QPushButton::clicked, this, &MainWindow::onImageChange3Clicked);
 
     // 添加三个文件夹（01, 02, 03）
     QStringList folders = {"01", "02", "03"};
@@ -298,7 +304,6 @@ void MainWindow::updateImageViewer()
             imageViewer->SetColorWindow(2000);
             imageViewer->SetColorLevel(500);
             
-            
             // 获取图像数据
             vtkImageData* imageData = reader->GetOutput();
             int extent[6];
@@ -321,11 +326,27 @@ void MainWindow::updateImageViewer()
             float d = camera->GetDistance();
             camera->SetParallelScale(0.5f * static_cast<float>(yd));  // 设置缩放比例
             camera->SetFocalPoint(xc, yc, 0.0);  // 设置焦点
+
             camera->SetPosition(xc, yc, +d);  // 设置相机位置
+
+            vtkNew<vtkTransform> transform;
+
+            if (isHorizontalFlip) {
+                transform->Scale(-1, 1, 1);  // X轴取反
+                transform->Translate(-(extent[1] - extent[0] + 1) * spacing[0], 0, 0);  // 补偿位置偏移
+            }
+
+            if (isVerticalFlip) {
+                transform->Scale(1, -1, 1);  // Y轴取反
+                transform->Translate(0, -(extent[3] - extent[2] + 1) * spacing[1], 0);  // 补偿位置偏移
+            }
+
+            // 应用到ImageActor
+            imageViewer->GetImageActor()->SetUserTransform(transform);
+
             
             // 添加到渲染窗口
             renderWindow->AddRenderer(renderer);
-
         }
     }
 
@@ -334,4 +355,27 @@ void MainWindow::updateImageViewer()
     
     // 强制刷新
     renderWindow->Render();
+}
+
+void MainWindow::onImageChange1Clicked()
+{
+    // 序列前后交换
+    int temp = startSlice;
+    startSlice = endSlice;
+    endSlice = temp;
+    updateImageViewer();
+}
+
+void MainWindow::onImageChange2Clicked()
+{
+    // 图像左右翻转
+    isHorizontalFlip = !isHorizontalFlip;
+    updateImageViewer();
+}
+
+void MainWindow::onImageChange3Clicked()
+{
+    // 图像上下翻转
+    isVerticalFlip = !isVerticalFlip;
+    updateImageViewer();
 }
