@@ -108,10 +108,10 @@ MainWindow::MainWindow(QWidget *parent)
     camera->SetPosition(xc, yc, +d);  // 设置相机位置
 
 
-    // 设置初始切片（如果是多层DICOM）
+    // 设置初始切片（多层DICOM）
     imageViewer->SetSlice(20); // 显示第一张切片
 
-    vtkWidget->renderWindow()->GetInteractor()->SetInteractorStyle(nullptr);
+    //vtkWidget->renderWindow()->GetInteractor()->SetInteractorStyle(nullptr);
 
     // 渲染
     imageViewer->Render();
@@ -314,11 +314,15 @@ void MainWindow::updateImageViewer()
                 break;
             }
 
-            // 计算切片位置（均匀分布）
+            //计算切片位置（索引自增）
+            int slice = index;
+            qDebug() << "Displaying slice:" << slice << "/" << zMax;
+
+            //计算切片位置（均匀分布）
             // double sliceStep = static_cast<double>(totalSlices - 1) / (totalViews - 1);
             // int slice = zMin + round(index * sliceStep);
             // slice = std::clamp(slice, zMin, zMax);
-            qDebug() << "Displaying slice:" << index << "/" << zMax;
+            // qDebug() << "Displaying slice:" << slice << "/" << zMax;
 
             // 创建视图组件
             vtkNew<vtkRenderer> renderer;
@@ -338,12 +342,12 @@ void MainWindow::updateImageViewer()
             imageViewer->SetRenderWindow(renderWindow);
             imageViewer->SetRenderer(renderer);
             
-            // 设置切片
-            imageViewer->SetSlice(index);
             
             // 调整窗口/级别
             imageViewer->SetColorWindow(2000);
             imageViewer->SetColorLevel(500);
+            imageViewer->SetSlice(slice);
+
             
             // 获取图像数据
             if (!imageData) {
@@ -351,20 +355,27 @@ void MainWindow::updateImageViewer()
                 continue;
             }
 
-            // 设置相机
-            vtkCamera* camera = renderer->GetActiveCamera();
-            camera->ParallelProjectionOn();  // 启用平行投影
+            // 获取当前切片的Z坐标（关键修正）
+            double sliceZ = imageData->GetOrigin()[2] + slice * imageData->GetSpacing()[2];
 
-            // 计算图像中心点
+            // 重新计算焦点和相机位置（包含Z轴信息）
+            vtkCamera* camera = renderer->GetActiveCamera();
+            camera->ParallelProjectionOn();
+
+            // 计算XY中心（保持不变）
             float xc = imageData->GetOrigin()[0] + 0.5 * (extent[0] + extent[1]) * imageData->GetSpacing()[0];
             float yc = imageData->GetOrigin()[1] + 0.5 * (extent[2] + extent[3]) * imageData->GetSpacing()[1];
             float yd = (extent[3] - extent[2] + 1) * imageData->GetSpacing()[1];
 
-            // 设置相机参数
+            // 设置焦点到当前切片的Z平面
+            camera->SetFocalPoint(xc, yc, sliceZ); // Z=当前切片位置
+
+            // 调整相机位置到切片的正面（保持与焦点的相对距离）
             float d = camera->GetDistance();
-            camera->SetParallelScale(0.5f * static_cast<float>(yd));  // 设置缩放比例
-            camera->SetFocalPoint(xc, yc, 0.0);  // 设置焦点
-            camera->SetPosition(xc, yc, +d);  // 设置相机位置
+            camera->SetPosition(xc, yc, sliceZ + d); // 保持d的初始计算，但叠加sliceZ
+
+            // 设置平行投影缩放（保持不变）
+            camera->SetParallelScale(0.5f * yd);
 
             vtkNew<vtkTransform> transform;
 
