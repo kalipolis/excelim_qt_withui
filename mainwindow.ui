@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>869</width>
-    <height>833</height>
+    <width>1057</width>
+    <height>885</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -61,7 +61,7 @@
        <item>
         <spacer name="horizontalSpacer_7">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -140,7 +140,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tabWidget_2Page1">
        <attribute name="title">
@@ -260,7 +260,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                    <item>
                     <spacer name="horizontalSpacer_5">
                      <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                      <enum>Qt::Orientation::Vertical</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
@@ -539,6 +539,9 @@ li.checked::marker { content: &quot;\2612&quot;; }
                         <property name="text">
                          <string>水平面断层</string>
                         </property>
+                        <property name="autoExclusive">
+                         <bool>true</bool>
+                        </property>
                        </widget>
                       </item>
                       <item>
@@ -546,12 +549,18 @@ li.checked::marker { content: &quot;\2612&quot;; }
                         <property name="text">
                          <string>冠状面断层</string>
                         </property>
+                        <property name="autoExclusive">
+                         <bool>true</bool>
+                        </property>
                        </widget>
                       </item>
                       <item>
                        <widget class="QCheckBox" name="checkBox_3">
                         <property name="text">
                          <string>矢状面断层</string>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>true</bool>
                         </property>
                        </widget>
                       </item>
@@ -627,7 +636,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                      </layout>
                     </widget>
                    </item>
-                   <item alignment="Qt::AlignHCenter">
+                   <item alignment="Qt::AlignmentFlag::AlignHCenter">
                     <widget class="QPushButton" name="read_in_1">
                      <property name="maximumSize">
                       <size>
@@ -851,7 +860,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 <item>
                  <spacer name="horizontalSpacer_6">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -1090,7 +1099,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                      </layout>
                     </widget>
                    </item>
-                   <item alignment="Qt::AlignLeft">
+                   <item alignment="Qt::AlignmentFlag::AlignLeft">
                     <widget class="QCheckBox" name="checkBox_7">
                      <property name="text">
                       <string>DTI数据</string>
@@ -1166,7 +1175,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                      </layout>
                     </widget>
                    </item>
-                   <item alignment="Qt::AlignHCenter">
+                   <item alignment="Qt::AlignmentFlag::AlignHCenter">
                     <widget class="QPushButton" name="pushButton_16">
                      <property name="maximumSize">
                       <size>
@@ -1371,10 +1380,10 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 <item>
                  <spacer name="horizontalSpacer">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeType">
-                   <enum>QSizePolicy::Expanding</enum>
+                   <enum>QSizePolicy::Policy::Expanding</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -2025,7 +2034,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                    </size>
                   </property>
                   <property name="frameShape">
-                   <enum>QFrame::NoFrame</enum>
+                   <enum>QFrame::Shape::NoFrame</enum>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_34">
                    <property name="leftMargin">
@@ -2042,7 +2051,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                    </property>
                    <item>
                     <layout class="QHBoxLayout" name="horizontalLayout_30">
-                     <item alignment="Qt::AlignVCenter">
+                     <item alignment="Qt::AlignmentFlag::AlignVCenter">
                       <widget class="QComboBox" name="comboBox_5">
                        <item>
                         <property name="text">
@@ -2142,7 +2151,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                           <property name="bottomMargin">
                            <number>6</number>
                           </property>
-                          <item alignment="Qt::AlignHCenter">
+                          <item alignment="Qt::AlignmentFlag::AlignHCenter">
                            <widget class="QCheckBox" name="checkBox_8">
                             <property name="minimumSize">
                              <size>
@@ -2164,7 +2173,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                             </property>
                            </widget>
                           </item>
-                          <item alignment="Qt::AlignHCenter">
+                          <item alignment="Qt::AlignmentFlag::AlignHCenter">
                            <widget class="QCheckBox" name="checkBox_9">
                             <property name="minimumSize">
                              <size>
@@ -2197,7 +2206,13 @@ li.checked::marker { content: &quot;\2612&quot;; }
                             <item>
                              <spacer name="horizontalSpacer_2">
                               <property name="orientation">
-                               <enum>Qt::Vertical</enum>
+                               <enum>Qt::Orientation::Vertical</enum>
+                              </property>
+                              <property name="sizeHint" stdset="0">
+                               <size>
+                                <width>0</width>
+                                <height>0</height>
+                               </size>
                               </property>
                              </spacer>
                             </item>
@@ -2299,7 +2314,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                    </size>
                   </property>
                   <layout class="QVBoxLayout" name="verticalLayout_36">
-                   <item alignment="Qt::AlignHCenter">
+                   <item alignment="Qt::AlignmentFlag::AlignHCenter">
                     <widget class="QPushButton" name="pushButton_44">
                      <property name="minimumSize">
                       <size>
@@ -2318,7 +2333,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                      </property>
                     </widget>
                    </item>
-                   <item alignment="Qt::AlignHCenter">
+                   <item alignment="Qt::AlignmentFlag::AlignHCenter">
                     <widget class="QPushButton" name="pushButton_45">
                      <property name="minimumSize">
                       <size>
@@ -2337,7 +2352,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                      </property>
                     </widget>
                    </item>
-                   <item alignment="Qt::AlignHCenter">
+                   <item alignment="Qt::AlignmentFlag::AlignHCenter">
                     <widget class="QPushButton" name="pushButton_43">
                      <property name="minimumSize">
                       <size>
@@ -2356,7 +2371,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                      </property>
                     </widget>
                    </item>
-                   <item alignment="Qt::AlignHCenter">
+                   <item alignment="Qt::AlignmentFlag::AlignHCenter">
                     <widget class="QPushButton" name="pushButton_46">
                      <property name="minimumSize">
                       <size>
@@ -2396,7 +2411,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                       <property name="bottomMargin">
                        <number>0</number>
                       </property>
-                      <item alignment="Qt::AlignHCenter">
+                      <item alignment="Qt::AlignmentFlag::AlignHCenter">
                        <widget class="QPushButton" name="pushButton_47">
                         <property name="minimumSize">
                          <size>
@@ -2424,7 +2439,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                 <item>
                  <spacer name="horizontalSpacer_3">
                   <property name="orientation">
-                   <enum>Qt::Vertical</enum>
+                   <enum>Qt::Orientation::Vertical</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -2847,7 +2862,7 @@ border: 0.5px solid #000000</string>
                 <item>
                  <spacer name="horizontalSpacer_4">
                   <property name="orientation">
-                   <enum>Qt::Vertical</enum>
+                   <enum>Qt::Orientation::Vertical</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -3149,8 +3164,8 @@ border: 0.5px solid #000000</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>869</width>
-     <height>22</height>
+     <width>1057</width>
+     <height>25</height>
     </rect>
    </property>
   </widget>
