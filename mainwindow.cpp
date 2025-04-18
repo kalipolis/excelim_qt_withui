@@ -17,7 +17,7 @@
 #include <QMessageBox> 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <algorithm>
-
+#pragma execution_character_set("utf-8")
 #include "vtkAutoInit.h"
 // 确保初始化必要的VTK模块
 VTK_MODULE_INIT(vtkRenderingOpenGL2);
@@ -80,9 +80,36 @@ MainWindow::MainWindow(QWidget *parent)
     imageViewer->SetInputConnection(reader->GetOutputPort());
     imageViewer->SetRenderWindow(vtkWidget->renderWindow());
 
+    int extent[6];
+    vtkImageData* imageData = reader->GetOutput();
+    imageData->GetExtent(extent);
+    double origin[3];
+    imageData->GetOrigin(origin);
+    double spacing[3];
+    imageData->GetSpacing(spacing);
+    // int* extent2 = imageData->GetExtent();
+    // int realSliceMin = extent2[4];
+    // int realSliceMax = extent2[5];
+    //qDebug() << "Real slice range:" << realSliceMin << "-" << realSliceMax;
+
+    // 设置相机
+    vtkCamera* camera = renderer->GetActiveCamera();
+    camera->ParallelProjectionOn();  // 启用平行投影
+
+    // 计算图像中心点
+    float xc = origin[0] + 0.5 * (extent[0] + extent[1]) * spacing[0];
+    float yc = origin[1] + 0.5 * (extent[2] + extent[3]) * spacing[1];
+    float yd = (extent[3] - extent[2] + 1) * spacing[1];
+
+    // 设置相机参数
+    float d = camera->GetDistance();
+    camera->SetParallelScale(0.5f * static_cast<float>(yd));  // 设置缩放比例
+    camera->SetFocalPoint(xc, yc, 0.0);  // 设置焦点
+    camera->SetPosition(xc, yc, +d);  // 设置相机位置
+
 
     // 设置初始切片（如果是多层DICOM）
-    imageViewer->SetSlice(50); // 显示第一张切片
+    imageViewer->SetSlice(20); // 显示第一张切片
 
     vtkWidget->renderWindow()->GetInteractor()->SetInteractorStyle(nullptr);
 
@@ -159,14 +186,15 @@ void MainWindow::on_nextpage_clicked()
 
 void MainWindow::onReadIn1Clicked()
 {
-    // 获取当前选中的行
-    int row = ui->base_series->currentRow();
+    // 获取当前选中的行，如果未选中则默认第一行
+    int row = ui->base_series->currentRow() == -1 ? 0 : ui->base_series->currentRow();
 
     // 获取选中的文件夹名称（01, 02, 03）
     QString folderName = ui->base_series->item(row, 0)->text();
 
     // 更新currentImagePath
     currentImagePath = "../../images/basic_sequence/" + folderName;
+    qDebug() << "currentImagePath: " << currentImagePath;
 
     // 获取文件夹中的切片数量
     QDir imageDir(currentImagePath);
@@ -176,40 +204,27 @@ void MainWindow::onReadIn1Clicked()
     // 获取用户输入的范围值，如果未输入则使用默认值
     startSlice = ui->lineEdit->text().isEmpty() ? 0 : ui->lineEdit->text().toInt();
     endSlice = ui->lineEdit_2->text().isEmpty() ? sliceCount : ui->lineEdit_2->text().toInt();
+    qDebug() << "startSlice: " << startSlice;
+    qDebug() << "endSlice: " << endSlice;
 
-    // // 检查输入范围是否有效
-    // if (startSlice < 0 || endSlice > sliceCount || startSlice > endSlice) {
-    //     QMessageBox::warning(this, "错误", "输入的范围无效，请重新输入");
-    //     return;
-    // }
+    // 检查输入范围是否有效
+    if (startSlice < 0 || endSlice > sliceCount || startSlice > endSlice) {
+        return;
+    }
 
-    // 更新SetDirectoryName
-    vtkNew<vtkDICOMImageReader> reader;
+    // 更新SetDirectoryName并设置切片范围
     reader->SetDirectoryName(currentImagePath.toStdString().c_str());
+    reader->SetDataExtent(0, 511, 0, 511, startSlice, endSlice); // 假设图像尺寸为512x512
+    reader->SetDataScalarTypeToUnsignedShort();
     reader->Update();
+
+    // 检查读取是否成功
+    if (reader->GetErrorCode() != 0) {
+        return;
+    }
+
+    // 更新图像显示
     updateImageViewer();
-
-    // 初始化VTK Widget
-    // auto vtkWidget = ui->QVTKOpenGLNativeWidget1;
-    // vtkNew<vtkRenderer> renderer;
-    // vtkWidget->renderWindow()->AddRenderer(renderer);
-
-    // // 配置图像显示
-    // vtkNew<vtkImageViewer2> imageViewer;
-    // imageViewer->SetInputConnection(reader->GetOutputPort());
-    // imageViewer->SetRenderWindow(vtkWidget->renderWindow());
-
-    // // 计算要显示的切片
-    // int slice = (startSlice + endSlice) / 2;
-    // imageViewer->SetSlice(slice); // 显示中间切片
-
-    // vtkWidget->renderWindow()->GetInteractor()->SetInteractorStyle(nullptr);
-
-    // // 渲染
-    // imageViewer->Render();
-
-    // 设置QVTKOpenGLNativeWidget1为可见
-    //ui->QVTKOpenGLNativeWidget1->setVisible(true);
 
     // 切换到stackedWidget_series的第二页
     ui->stacked_widget_series->setCurrentIndex(1);
@@ -241,21 +256,36 @@ void MainWindow::on4v4Clicked()
 
 void MainWindow::updateImageViewer()
 {
+    qDebug() << "Starting updateImageViewer()";
+    
     QDir imageDir(currentImagePath);
     if (!imageDir.exists()) {
-        qDebug() << "Directory does not exist:" << currentImagePath;
+        qDebug() << "Error: Directory does not exist:" << currentImagePath;
         return;
     }
 
     auto vtkWidget = ui->QVTKOpenGLNativeWidget1;
+    if (!vtkWidget) {
+        qDebug() << "Error: QVTKOpenGLNativeWidget1 is null";
+        return;
+    }
+
     auto renderWindow = vtkWidget->renderWindow();
-    
-    // 清除旧内容
+    if (!renderWindow) {
+        qDebug() << "Error: Failed to get render window";
+        return;
+    }
+
+    qDebug() << "Clearing old renderers";
     renderWindow->GetRenderers()->RemoveAllItems();
 
-    // 配置DICOM读取器
-    reader->SetDirectoryName(currentImagePath.toStdString().c_str());
-    reader->Update();
+    // 获取实际加载的切片范围
+    vtkImageData* imageData = reader->GetOutput();
+    int* extent = imageData->GetExtent();
+    int zMin = extent[4];
+    int zMax = extent[5];
+    int totalSlices = zMax - zMin + 1;
+    qDebug() << "Loaded slices:" << totalSlices;
 
     // 计算布局
     int rows = 1, cols = 1;
@@ -264,7 +294,12 @@ void MainWindow::updateImageViewer()
     case 2: rows = cols = 2; break;
     case 3: rows = cols = 3; break;
     case 4: rows = cols = 4; break;
+    default:
+        qDebug() << "Warning: Unknown display mode, using default 1x1";
+        break;
     }
+
+    qDebug() << "Calculating layout with rows:" << rows << "cols:" << cols;
 
     const int totalViews = rows * cols;
     const double vpWidth = 1.0 / cols;
@@ -272,21 +307,18 @@ void MainWindow::updateImageViewer()
 
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-            int index;
-
-            if(isSequenceSwapped){
-                index = totalViews-1-(i * cols + j);
-
-            }
-            else{
-                index = i * cols + j;
-            }
+            int index = startSlice + (isSequenceSwapped ? totalViews - 1 - (i * cols + j) : i * cols + j);
             
-            if (index >= totalViews) break;
+            if (index > endSlice) {
+                qDebug() << "Warning: Index out of bounds, breaking loop";
+                break;
+            }
 
             // 计算切片位置（均匀分布）
-            int slice = startSlice + index;
-            slice = std::clamp(slice, startSlice, endSlice);
+            // double sliceStep = static_cast<double>(totalSlices - 1) / (totalViews - 1);
+            // int slice = zMin + round(index * sliceStep);
+            // slice = std::clamp(slice, zMin, zMax);
+            qDebug() << "Displaying slice:" << index << "/" << zMax;
 
             // 创建视图组件
             vtkNew<vtkRenderer> renderer;
@@ -307,55 +339,53 @@ void MainWindow::updateImageViewer()
             imageViewer->SetRenderer(renderer);
             
             // 设置切片
-            imageViewer->SetSlice(slice);
+            imageViewer->SetSlice(index);
             
             // 调整窗口/级别
             imageViewer->SetColorWindow(2000);
             imageViewer->SetColorLevel(500);
             
             // 获取图像数据
-            vtkImageData* imageData = reader->GetOutput();
-            int extent[6];
-            imageData->GetExtent(extent);
-            double origin[3];
-            imageData->GetOrigin(origin);
-            double spacing[3];
-            imageData->GetSpacing(spacing);
+            if (!imageData) {
+                qDebug() << "Error: Failed to get image data";
+                continue;
+            }
 
             // 设置相机
             vtkCamera* camera = renderer->GetActiveCamera();
             camera->ParallelProjectionOn();  // 启用平行投影
 
             // 计算图像中心点
-            float xc = origin[0] + 0.5 * (extent[0] + extent[1]) * spacing[0];
-            float yc = origin[1] + 0.5 * (extent[2] + extent[3]) * spacing[1];
-            float yd = (extent[3] - extent[2] + 1) * spacing[1];
+            float xc = imageData->GetOrigin()[0] + 0.5 * (extent[0] + extent[1]) * imageData->GetSpacing()[0];
+            float yc = imageData->GetOrigin()[1] + 0.5 * (extent[2] + extent[3]) * imageData->GetSpacing()[1];
+            float yd = (extent[3] - extent[2] + 1) * imageData->GetSpacing()[1];
 
             // 设置相机参数
             float d = camera->GetDistance();
             camera->SetParallelScale(0.5f * static_cast<float>(yd));  // 设置缩放比例
             camera->SetFocalPoint(xc, yc, 0.0);  // 设置焦点
-
             camera->SetPosition(xc, yc, +d);  // 设置相机位置
 
             vtkNew<vtkTransform> transform;
 
             if (isHorizontalFlip) {
+                qDebug() << "Applying horizontal flip";
                 transform->Scale(-1, 1, 1);  // X轴取反
-                transform->Translate(-(extent[1] - extent[0] + 1) * spacing[0], 0, 0);  // 补偿位置偏移
+                transform->Translate(-(extent[1] - extent[0] + 1) * imageData->GetSpacing()[0], 0, 0);  // 补偿位置偏移
             }
 
             if (isVerticalFlip) {
+                qDebug() << "Applying vertical flip";
                 transform->Scale(1, -1, 1);  // Y轴取反
-                transform->Translate(0, -(extent[3] - extent[2] + 1) * spacing[1], 0);  // 补偿位置偏移
+                transform->Translate(0, -(extent[3] - extent[2] + 1) * imageData->GetSpacing()[1], 0);  // 补偿位置偏移
             }
 
             // 应用到ImageActor
             imageViewer->GetImageActor()->SetUserTransform(transform);
 
-            
             // 添加到渲染窗口
             renderWindow->AddRenderer(renderer);
+            qDebug() << "Added renderer at position:" << i << j;
         }
     }
 
@@ -363,7 +393,10 @@ void MainWindow::updateImageViewer()
     renderWindow->GetInteractor()->SetInteractorStyle(nullptr);
     
     // 强制刷新
+    qDebug() << "Rendering window";
     renderWindow->Render();
+    
+    qDebug() << "Finished updateImageViewer()";
 }
 
 void MainWindow::onImageChange1Clicked()
