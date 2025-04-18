@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     displayMode = 1; // 默认显示模式为1*1
     reader = vtkSmartPointer<vtkDICOMImageReader>::New(); // 初始化reader
+    isSequenceSwapped = false; // 默认不交换序列
     isHorizontalFlip = false; // 默认不水平翻转
     isVerticalFlip = false;   // 默认不垂直翻转
     ui->base_series->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -311,12 +312,12 @@ void MainWindow::updateImageViewer()
             
             if (index > endSlice) {
                 qDebug() << "Warning: Index out of bounds, breaking loop";
-                break;
             }
 
             //计算切片位置（索引自增）
             int slice = index;
             qDebug() << "Displaying slice:" << slice << "/" << zMax;
+            slice = std::clamp(slice, startSlice, endSlice);  //保证不超过序列
 
             //计算切片位置（均匀分布）
             // double sliceStep = static_cast<double>(totalSlices - 1) / (totalViews - 1);
