@@ -7,7 +7,7 @@
 #include <vtkDICOMImageReader.h>
 #include <vtkImageViewer2.h>
 #include <QVTKOpenGLNativeWidget.h>
-
+#include <QTableWidget>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -27,10 +27,11 @@ private slots:
     void on_nextpage_clicked();
 
     void onReadIn1Clicked();
-    void MainWindow::on1v1Clicked();
-    void MainWindow::on2v2Clicked();
-    void MainWindow::on3v3Clicked();
-    void MainWindow::on4v4Clicked();
+    void on1v1Clicked();
+    void on2v2Clicked();
+    void on3v3Clicked();
+    void on4v4Clicked();
+    void resizeColumnsToFit(QTableWidget *tableWidget);
 
     void onImageChange1Clicked();  // 序列前后交换
     void onImageChange2Clicked();  // 图像左右翻转

@@ -14,11 +14,14 @@
 #include <QColorDialog>
 #include <QDebug>
 #include <QDir>
+
 #include <QMessageBox> 
 #include <vtkGenericOpenGLRenderWindow.h>
 #include <algorithm>
 #pragma execution_character_set("utf-8")
 #include "vtkAutoInit.h"
+#include <QScreen>
+#include <QTimer>
 // 确保初始化必要的VTK模块
 VTK_MODULE_INIT(vtkRenderingOpenGL2);
 VTK_MODULE_INIT(vtkInteractionStyle);
@@ -28,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->resize(this->width(), QApplication::primaryScreen()->availableGeometry().height());
     displayMode = 1; // 默认显示模式为1*1
     reader = vtkSmartPointer<vtkDICOMImageReader>::New(); // 初始化reader
     isSequenceSwapped = false; // 默认不交换序列
@@ -51,16 +55,31 @@ MainWindow::MainWindow(QWidget *parent)
     for (const QString &folder : folders) {
         int row = ui->base_series->rowCount();
         ui->base_series->insertRow(row);
-        ui->base_series->setItem(row, 0, new QTableWidgetItem(folder)); // 姓名
-        ui->base_series->setItem(row, 1, new QTableWidgetItem("DICOM")); // 种类
+        
+        // 创建表格项并设置居中
+        QTableWidgetItem* nameItem = new QTableWidgetItem(folder);
+        nameItem->setTextAlignment(Qt::AlignCenter);
+        ui->base_series->setItem(row, 0, nameItem); // 姓名
+        
+        QTableWidgetItem* typeItem = new QTableWidgetItem("DICOM");
+        typeItem->setTextAlignment(Qt::AlignCenter);
+        ui->base_series->setItem(row, 1, typeItem); // 种类
+        
         // 统计文件夹中的切片数量
         QDir imageDir("../../images/basic_sequence/" + folder);
         QStringList imageFiles = imageDir.entryList(QDir::Files);
         int sliceCount = imageFiles.size();
 
-        // 更新"数量"列
-        ui->base_series->setItem(row, 2, new QTableWidgetItem(QString::number(sliceCount)));
+        // 更新"数量"列并设置居中
+        QTableWidgetItem* countItem = new QTableWidgetItem(QString::number(sliceCount));
+        countItem->setTextAlignment(Qt::AlignCenter);
+        ui->base_series->setItem(row, 2, countItem);
     }
+
+    // 延迟调用resizeColumnsToFit
+    QTimer::singleShot(0, this, [this]() {
+        resizeColumnsToFit(ui->base_series);
+    });
 
     // 连接read_in_1按钮的点击信号到槽函数
     connect(ui->read_in_1, &QPushButton::clicked, this, &MainWindow::onReadIn1Clicked);
@@ -429,4 +448,36 @@ void MainWindow::onImageChange3Clicked()
     // 图像上下翻转
     isVerticalFlip = !isVerticalFlip;
     updateImageViewer();
+}
+void MainWindow::resizeColumnsToFit(QTableWidget *tableWidget)
+{
+    if (!tableWidget) {
+        qDebug() << "Invalid table widget pointer";
+        return; // 安全检查，确保传入的指针有效
+    }
+    
+    qDebug() << "Resizing columns to contents";
+    // 先根据内容调整列宽
+    tableWidget->resizeColumnsToContents();
+    
+    // 获取表格的可用宽度
+    int tableWidth = tableWidget->viewport()->width();
+    qDebug() << "Table viewport width:" << tableWidth;
+    int totalWidth = 0;
+    
+    // 计算所有列的当前宽度总和
+    for (int i = 0; i < tableWidget->columnCount(); ++i) {
+        totalWidth += tableWidget->columnWidth(i);
+    }
+    qDebug() << "Total columns width:" << totalWidth;
+    
+    // 如果内容宽度小于表格宽度，则平均分配剩余空间
+    if (totalWidth < tableWidth) {
+        qDebug() << "Distributing extra space between columns";
+        int extraWidth = (tableWidth - totalWidth) / tableWidget->columnCount();
+        for (int i = 0; i < tableWidget->columnCount(); ++i) {
+            tableWidget->setColumnWidth(i, tableWidget->columnWidth(i) + extraWidth);
+        }
+    }
+    qDebug() << "Column resizing completed";
 }

@@ -345,7 +345,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
            <number>0</number>
           </property>
           <widget class="QWidget" name="mainpage_2_1">
-           <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0">
+           <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0">
             <property name="topMargin">
              <number>2</number>
             </property>
@@ -426,7 +426,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
                  <widget class="QWidget" name="read_in_basic_weight" native="true">
                   <property name="minimumSize">
                    <size>
-                    <width>400</width>
+                    <width>250</width>
                     <height>0</height>
                    </size>
                   </property>
@@ -879,6 +879,19 @@ li.checked::marker { content: &quot;\2612&quot;; }
                </layout>
               </widget>
              </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>

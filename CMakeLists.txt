@@ -27,27 +27,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(SOURCES
-    main.cpp
-    mainwindow.cpp
-    point.cpp
-    rt_3.cpp
-    save.cpp
-)
-
-set(HEADERS
-    mainwindow.h
-    point.h
-    rt_3.h
-    save.h
-)
-
-set(FORMS
-    mainwindow.ui
-    point.ui
-    rt_3.ui
-    save.ui
-)
+file(GLOB SOURCES "*.cpp")
+file(GLOB HEADERS "*.h")
+file(GLOB FORMS "*.ui")
 
 file(GLOB_RECURSE QSS_FILES "${CMAKE_CURRENT_SOURCE_DIR}/qss/*")
 
