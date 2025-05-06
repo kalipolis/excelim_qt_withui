@@ -6,8 +6,11 @@
 #include <vtkSmartPointer.h>
 #include <vtkDICOMImageReader.h>
 #include <vtkImageViewer2.h>
+#include <vtkMarchingCubes.h>
+#include <vtkPolyDataMapper.h>
 #include <QVTKOpenGLNativeWidget.h>
 #include <QTableWidget>
+#include <vtkProperty.h>
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -36,6 +39,11 @@ private slots:
     void onImageChange1Clicked();  // 序列前后交换
     void onImageChange2Clicked();  // 图像左右翻转
     void onImageChange3Clicked();  // 图像上下翻转
+
+    void on3DReconstructionClicked();
+
+    void onEditOrganClicked();
+    void applyOrganColor(const QColor &color);
 
 private:
     void updateImageViewer();

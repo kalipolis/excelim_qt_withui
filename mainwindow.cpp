@@ -22,6 +22,7 @@
 #include "vtkAutoInit.h"
 #include <QScreen>
 #include <QTimer>
+#include <vtkInteractorStyleTrackballCamera.h>
 // 确保初始化必要的VTK模块
 VTK_MODULE_INIT(vtkRenderingOpenGL2);
 VTK_MODULE_INIT(vtkInteractionStyle);
@@ -49,7 +50,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->image_change_1, &QPushButton::clicked, this, &MainWindow::onImageChange1Clicked);
     connect(ui->image_change_2, &QPushButton::clicked, this, &MainWindow::onImageChange2Clicked);
     connect(ui->image_change_3, &QPushButton::clicked, this, &MainWindow::onImageChange3Clicked);
-
+    connect(ui->pushButton_44, &QPushButton::clicked, this, &MainWindow::on3DReconstructionClicked);
+    connect(ui->pushButton_46, &QPushButton::clicked, this, &MainWindow::onEditOrganClicked);
+    connect(ui->colorButton, &QPushButton::clicked, this, &MainWindow::onColorButtonClicked);
     // 添加三个文件夹（01, 02, 03）
     QStringList folders = {"01", "02", "03"};
     for (const QString &folder : folders) {
@@ -151,6 +154,7 @@ void MainWindow::onColorButtonClicked()
     if (cdia->exec() == QDialog::Accepted) {
         QColor color = cdia->currentColor();
         ui->colorButton->setStyleSheet(QString("background-color: %1").arg(color.name()));
+        applyOrganColor(color); 
     }
     delete cdia;
 }
@@ -449,6 +453,54 @@ void MainWindow::onImageChange3Clicked()
     isVerticalFlip = !isVerticalFlip;
     updateImageViewer();
 }
+
+void MainWindow::on3DReconstructionClicked()
+{
+    // 检查是否已选择序列
+    if (currentImagePath.isEmpty()) {
+        QMessageBox::warning(this, "警告", "请先选择要重建的序列");
+        return;
+    }
+
+    // 创建三维重建的渲染器和窗口
+    auto vtkWidget = ui->QVTKOpenGLNativeWidget1;
+    vtkNew<vtkRenderer> renderer;
+    vtkWidget->renderWindow()->AddRenderer(renderer);
+
+    // 使用选定的DICOM序列进行三维重建
+    vtkNew<vtkDICOMImageReader> reader;
+    reader->SetDirectoryName(currentImagePath.toStdString().c_str());
+    reader->Update();
+
+    // 创建Marching Cubes算法进行表面重建
+    vtkNew<vtkMarchingCubes> mc;
+    mc->SetInputConnection(reader->GetOutputPort());
+    mc->SetValue(0, 500);  // 设置等值面值
+
+    // 创建mapper和actor
+    vtkNew<vtkPolyDataMapper> mapper;
+    mapper->SetInputConnection(mc->GetOutputPort());
+
+    vtkNew<vtkActor> actor;
+    actor->SetMapper(mapper);
+
+    // 添加actor到渲染器
+    renderer->AddActor(actor);
+
+    // 设置相机参数
+    vtkCamera* camera = renderer->GetActiveCamera();
+    camera->Azimuth(30);
+    camera->Elevation(30);
+    renderer->ResetCamera();
+
+    // 设置交互器样式
+    vtkNew<vtkInteractorStyleTrackballCamera> style;
+    vtkWidget->renderWindow()->GetInteractor()->SetInteractorStyle(style);
+
+    // 渲染
+    vtkWidget->renderWindow()->Render();
+}
+
 void MainWindow::resizeColumnsToFit(QTableWidget *tableWidget)
 {
     if (!tableWidget) {
@@ -480,4 +532,30 @@ void MainWindow::resizeColumnsToFit(QTableWidget *tableWidget)
         }
     }
     qDebug() << "Column resizing completed";
+}
+
+void MainWindow::onEditOrganClicked()
+{
+    // 切换到page_13
+    ui->stackedWidget_7->setCurrentIndex(1);
+}
+
+void MainWindow::applyOrganColor(const QColor &color)
+{
+    // 获取当前渲染器
+    auto vtkWidget = ui->QVTKOpenGLNativeWidget1;
+    auto renderer = vtkWidget->renderWindow()->GetRenderers()->GetFirstRenderer();
+    
+    // 获取所有actor
+    vtkActorCollection* actors = renderer->GetActors();
+    actors->InitTraversal();
+    
+    // 遍历所有actor并设置颜色
+    while (vtkActor* actor = actors->GetNextActor())
+    {
+        actor->GetProperty()->SetColor(color.redF(), color.greenF(), color.blueF());
+    }
+    
+    // 重新渲染
+    vtkWidget->renderWindow()->Render();
 }
