@@ -45,8 +45,18 @@ private slots:
     void onEditOrganClicked();
     void applyOrganColor(const QColor &color);
 
+    void onThresholdSliderChanged(int value);
+
+    void onOpacitySliderChanged(int value);  // 添加透明度滑块槽函数
+
+    void on_pushButton_61_clicked();
+
+    void on_tabWidget_tabBarClicked(int index);
+
 private:
     void updateImageViewer();
+
+    vtkSmartPointer<vtkActor> m_3DActor; // 保存三维模型的 Actor
 
     Ui::MainWindow *ui;
     QString currentImagePath;
@@ -57,5 +67,6 @@ private:
     int endSlice;
     int displayMode;
     vtkSmartPointer<vtkDICOMImageReader> reader;
+    double opacity;  // 添加透明度成员变量
 };
 #endif // MAINWINDOW_H

@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <vtkAlgorithmOutput.h>  // 添加这行
+#include <vtkMarchingCubes.h>    // 确保这行存在
 #include <vtkRendererCollection.h> 
 #include <vtkRenderer.h>   
 #include <vtkCamera.h>       
@@ -53,6 +55,15 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->pushButton_44, &QPushButton::clicked, this, &MainWindow::on3DReconstructionClicked);
     connect(ui->pushButton_46, &QPushButton::clicked, this, &MainWindow::onEditOrganClicked);
     connect(ui->colorButton, &QPushButton::clicked, this, &MainWindow::onColorButtonClicked);
+    connect(ui->lineEdit_5, &QLineEdit::textChanged, this, [this]() {
+        bool ok;
+        int value = ui->lineEdit_5->text().toInt(&ok);
+        if (ok) {
+            ui->horizontalSlider_4->setValue(value);
+        }
+    });
+    // 在构造函数中添加
+    connect(ui->horizontalSlider_4, &QSlider::valueChanged, this, &MainWindow::onThresholdSliderChanged);
     // 添加三个文件夹（01, 02, 03）
     QStringList folders = {"01", "02", "03"};
     for (const QString &folder : folders) {
@@ -138,6 +149,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 渲染
     imageViewer->Render();
+
+    opacity = 0.8;  // 默认透明度
+    connect(ui->horizontalSlider_2, &QSlider::valueChanged, this, &MainWindow::onOpacitySliderChanged);
 }
 
 
@@ -146,18 +160,6 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::onColorButtonClicked()
-{
-    QColorDialog *cdia = new QColorDialog(this);
-    cdia->setWindowTitle("选择颜色");
-    cdia->setCurrentColor(QColor("red"));
-    if (cdia->exec() == QDialog::Accepted) {
-        QColor color = cdia->currentColor();
-        ui->colorButton->setStyleSheet(QString("background-color: %1").arg(color.name()));
-        applyOrganColor(color); 
-    }
-    delete cdia;
-}
 
 void MainWindow::on_lastpage_clicked()
 {
@@ -238,7 +240,6 @@ void MainWindow::onReadIn1Clicked()
 
     // 更新SetDirectoryName并设置切片范围
     reader->SetDirectoryName(currentImagePath.toStdString().c_str());
-    reader->SetDataExtent(0, 511, 0, 511, startSlice, endSlice); // 假设图像尺寸为512x512
     reader->SetDataScalarTypeToUnsignedShort();
     reader->Update();
 
@@ -470,23 +471,30 @@ void MainWindow::on3DReconstructionClicked()
     // 使用选定的DICOM序列进行三维重建
     vtkNew<vtkDICOMImageReader> reader;
     reader->SetDirectoryName(currentImagePath.toStdString().c_str());
+    
+    // 设置切片范围
+    reader->SetDataExtent(0, 0, 0, 0, startSlice, endSlice);  // 只读取选定的切片范围
+    reader->SetDataScalarTypeToUnsignedShort();
     reader->Update();
 
     // 创建Marching Cubes算法进行表面重建
     vtkNew<vtkMarchingCubes> mc;
     mc->SetInputConnection(reader->GetOutputPort());
-    mc->SetValue(0, 500);  // 设置等值面值
+    int currentThreshold = ui->horizontalSlider_4->value(); // 获取滑块当前值
+    mc->SetValue(0, currentThreshold); // 使用滑块值作为阈值
 
     // 创建mapper和actor
     vtkNew<vtkPolyDataMapper> mapper;
     mapper->SetInputConnection(mc->GetOutputPort());
+    mapper->ScalarVisibilityOff();
 
     vtkNew<vtkActor> actor;
     actor->SetMapper(mapper);
+    actor->GetProperty()->SetOpacity(opacity);      // 初始透明度
 
     // 添加actor到渲染器
-    renderer->AddActor(actor);
-
+    m_3DActor = actor; // 保存 Actor
+    renderer->AddActor(m_3DActor);
     // 设置相机参数
     vtkCamera* camera = renderer->GetActiveCamera();
     camera->Azimuth(30);
@@ -496,9 +504,10 @@ void MainWindow::on3DReconstructionClicked()
     // 设置交互器样式
     vtkNew<vtkInteractorStyleTrackballCamera> style;
     vtkWidget->renderWindow()->GetInteractor()->SetInteractorStyle(style);
-
+    
     // 渲染
     vtkWidget->renderWindow()->Render();
+
 }
 
 void MainWindow::resizeColumnsToFit(QTableWidget *tableWidget)
@@ -542,20 +551,73 @@ void MainWindow::onEditOrganClicked()
 
 void MainWindow::applyOrganColor(const QColor &color)
 {
-    // 获取当前渲染器
     auto vtkWidget = ui->QVTKOpenGLNativeWidget1;
     auto renderer = vtkWidget->renderWindow()->GetRenderers()->GetFirstRenderer();
     
-    // 获取所有actor
     vtkActorCollection* actors = renderer->GetActors();
     actors->InitTraversal();
     
-    // 遍历所有actor并设置颜色
     while (vtkActor* actor = actors->GetNextActor())
     {
         actor->GetProperty()->SetColor(color.redF(), color.greenF(), color.blueF());
     }
     
-    // 重新渲染
     vtkWidget->renderWindow()->Render();
 }
+
+void MainWindow::onThresholdSliderChanged(int value)
+{
+    // 实时更新阈值显示
+    ui->lineEdit_5->setText(QString::number(value));
+}
+
+
+void MainWindow::onColorButtonClicked() {
+    qDebug() << "Color button clicked - opening color dialog";
+    QColor color = QColorDialog::getColor(Qt::red, this, "选择颜色");
+    if (color.isValid()) {
+        qDebug() << "Selected color (RGB):" << color.red() << color.green() << color.blue();
+        if (m_3DActor) {
+            qDebug() << "Applying color to 3D actor";
+            m_3DActor->GetProperty()->SetColor(color.redF(), color.greenF(), color.blueF());
+            m_3DActor->GetProperty()->SetOpacity(opacity);
+            ui->QVTKOpenGLNativeWidget1->renderWindow()->Render();
+            qDebug() << "Render window updated with new color";
+        } else {
+            qDebug() << "No 3D actor available to apply color";
+        }
+    } else {
+        qDebug() << "Color selection canceled or invalid";
+    }
+}
+
+void MainWindow::onOpacitySliderChanged(int value) {
+    opacity = value / 100.0;
+    qDebug() << "Opacity changed to:" << opacity;
+    
+    QString style = QString("QLabel { color: black; background-color: rgba(200, 200, 200, %1); }")
+                    .arg(opacity);
+    ui->label_28->setStyleSheet(style);
+    qDebug() << "Label style updated with new opacity";
+    
+    if (m_3DActor) {
+        qDebug() << "Applying opacity to 3D actor";
+        m_3DActor->GetProperty()->SetOpacity(opacity);
+        ui->QVTKOpenGLNativeWidget1->renderWindow()->Render();
+        qDebug() << "Render window updated with new opacity";
+    } else {
+        qDebug() << "No 3D actor available to apply opacity";
+    }
+}
+
+void MainWindow::on_pushButton_61_clicked()
+{
+    ui->stackedWidget_7->setCurrentIndex(0);
+}
+
+
+void MainWindow::on_tabWidget_tabBarClicked(int index)
+{
+    if(index==2)ui->stackedWidget_7->setCurrentIndex(0);
+}
+

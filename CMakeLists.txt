@@ -56,3 +56,5 @@ add_custom_command(TARGET MyVTKQtApp POST_BUILD
         ${CMAKE_CURRENT_SOURCE_DIR}/qss/myQSS.qss
         $<TARGET_FILE_DIR:MyVTKQtApp>/qss/
 )
+
+add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
